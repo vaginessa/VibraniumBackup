@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="60dp" >
+
+    <RelativeLayout android:id="@+id/bkpsli_root"
+        android:layout_width="match_parent" android:layout_height="60dp">
+
+        <ImageView android:id="@+id/bkpsli_app_icon"
+            android:layout_width="48dp" android:layout_height="match_parent"
+            android:maxHeight="48dp" android:maxWidth="48dp"
+            android:layout_margin="6dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentStart="true" />
+
+        <LinearLayout android:orientation="vertical"
+            android:layout_width="match_parent" android:layout_height="match_parent"
+            android:layout_marginStart="72dp"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true">
+
+            <TextView android:id="@+id/bkpsli_app_name"
+                android:layout_height="30dp"
+                android:layout_width="match_parent" />
+
+            <TextView android:id="@+id/bkpsli_app_pkg"
+                android:layout_height="30dp"
+                android:layout_width="match_parent" />
+
+        </LinearLayout>
+
+    </RelativeLayout>
+</RelativeLayout>
