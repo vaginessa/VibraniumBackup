@@ -4,4 +4,5 @@
     android:layout_height="match_parent"
     android:id="@+id/bkps_list"
     android:fastScrollEnabled="true"
-    android:dividerHeight="0dp" />
+    android:dividerHeight="0dp"
+    android:indicator="@null" />
