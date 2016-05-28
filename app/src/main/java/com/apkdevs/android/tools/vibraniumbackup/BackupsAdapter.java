@@ -39,9 +39,7 @@ public class BackupsAdapter extends ArrayAdapter<HashMap<String, Object>> {
     }
 
     @Override
-    public long getItemId(int position) {
-        return position;
-    }
+    public long getItemId(int position) {return position;}
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
@@ -51,7 +49,6 @@ public class BackupsAdapter extends ArrayAdapter<HashMap<String, Object>> {
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             view = layoutInflater.inflate(R.layout.bkps_li, null);
         }
-
         HashMap<String, Object> appInfo = appsList.get(position);
         if (appInfo != null) {
             TextView appName = (TextView) view.findViewById(R.id.bkpsli_app_name);

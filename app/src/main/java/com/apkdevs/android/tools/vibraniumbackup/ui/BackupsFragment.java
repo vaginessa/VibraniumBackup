@@ -1,5 +1,6 @@
 package com.apkdevs.android.tools.vibraniumbackup.ui;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -10,10 +11,10 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ExpandableListView;
-import android.widget.Toast;
+import android.widget.AdapterView;
+import android.widget.ListView;
 
-import com.apkdevs.android.tools.vibraniumbackup.BackupsExpandableAdapter;
+import com.apkdevs.android.tools.vibraniumbackup.BackupsAdapter;
 import com.apkdevs.android.tools.vibraniumbackup.R;
 
 import java.io.File;
@@ -21,13 +22,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class BackupsFragment extends Fragment implements ExpandableListView.OnChildClickListener {
+public class BackupsFragment extends Fragment implements AdapterView.OnItemClickListener {
     private PackageManager pkgMngr;
     private List<HashMap<String, Object>> applist;
-    private List<HashMap<String, Object>> aboutlist;
-    private BackupsExpandableAdapter listAdaptor;
+    private BackupsAdapter listAdaptor;
     private View rootView;
-    private ExpandableListView listView;
+    private ListView listView;
 
     public BackupsFragment() {}
 
@@ -40,40 +40,29 @@ public class BackupsFragment extends Fragment implements ExpandableListView.OnCh
         rootView = inflater.inflate(R.layout.frag_bkps, container, false);
         pkgMngr = BaseActivity.getACAPkgMngr();
         new LoadApplications().execute();
-        listView = ((ExpandableListView) (rootView.findViewById(R.id.bkps_list)));
+        listView = ((ListView) (rootView.findViewById(R.id.bkps_list)));
         listView.setDividerHeight(0);
-        listView.setOnChildClickListener(this);
+        listView.setOnItemClickListener(this);
         return rootView;
     }
 
-    private List<HashMap<String, Object>> convert(List<ApplicationInfo> list, boolean what) {
-        if (what) {
-            ArrayList<HashMap<String, Object>> applist = new ArrayList<>();
-            for (int i = 0; i < list.size(); i++) {
-                ApplicationInfo appInfo = list.get(i);
-                HashMap<String, Object> mappedInfo = new HashMap<>();
-                mappedInfo.put("name", appInfo.loadLabel(pkgMngr));
-                mappedInfo.put("pkg", appInfo.packageName);
-                mappedInfo.put("icon", appInfo.loadIcon(pkgMngr));
-                applist.add(mappedInfo);
-            }
-            List<HashMap<String, Object>> bkdpappslist = getBackupUpApps();
-            if (bkdpappslist != null) {
-                for (int i = 0; i < bkdpappslist.size(); i++) {
-                    applist.add(bkdpappslist.get(i));
-                }
-            }
-            return applist;
-        } else {
-            ArrayList<HashMap<String, Object>> ablist = new ArrayList<>();
-            for (int i = 0; i < list.size(); i++) {
-                ApplicationInfo appInfo = list.get(i);
-                HashMap<String, Object> mappedInfo = new HashMap<>();
-                mappedInfo.put("more", appInfo.loadDescription(pkgMngr));
-                ablist.add(mappedInfo);
-            }
-            return ablist;
+    private List<HashMap<String, Object>> convert(List<ApplicationInfo> list) {
+        ArrayList<HashMap<String, Object>> applist = new ArrayList<>();
+        for (int i = 0; i < list.size(); i++) {
+          ApplicationInfo appInfo = list.get(i);
+          HashMap<String, Object> mappedInfo = new HashMap<>();
+          mappedInfo.put("name", appInfo.loadLabel(pkgMngr));
+          mappedInfo.put("pkg", appInfo.packageName);
+          mappedInfo.put("icon", appInfo.loadIcon(pkgMngr));
+          applist.add(mappedInfo);
         }
+        List<HashMap<String, Object>> bkdpappslist = getBackupUpApps();
+        if (bkdpappslist != null) {
+            for (int i = 0; i < bkdpappslist.size(); i++) {
+                applist.add(bkdpappslist.get(i));
+            }
+        }
+        return applist;
     }
 
     private List<HashMap<String, Object>> getBackupUpApps() {
@@ -85,11 +74,7 @@ public class BackupsFragment extends Fragment implements ExpandableListView.OnCh
         return apps;
     }
 
-    public boolean onChildClick(ExpandableListView parent, View v, int grpPos, int childPos, long id) {
-        Toast.makeText(getContext(),
-                "id: " + id + ". Child pos: " + Integer.toString(childPos) + ", Group pos: " + Integer.toString(grpPos) + ".",
-                Toast.LENGTH_LONG).show();
-        return true;
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
     }
 
 
@@ -99,9 +84,8 @@ public class BackupsFragment extends Fragment implements ExpandableListView.OnCh
 
         @Override
         protected Void doInBackground(Void... params) {
-            applist = convert(pkgMngr.getInstalledApplications(PackageManager.GET_META_DATA), true);
-            aboutlist = convert(pkgMngr.getInstalledApplications(PackageManager.GET_META_DATA), false);
-            listAdaptor = new BackupsExpandableAdapter(getContext(), applist, aboutlist);
+            applist = convert(pkgMngr.getInstalledApplications(PackageManager.GET_META_DATA));
+            listAdaptor = new BackupsAdapter(getContext(), R.layout.bkps_li, applist);
             return null;
         }
 
@@ -128,5 +112,4 @@ public class BackupsFragment extends Fragment implements ExpandableListView.OnCh
             super.onProgressUpdate(values);
         }
     }
-
 }
