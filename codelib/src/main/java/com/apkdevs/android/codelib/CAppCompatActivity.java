@@ -12,6 +12,11 @@ import android.support.v7.widget.Toolbar;
 
 import com.apkdevs.android.codelib.ui.TypefaceSpan;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.Objects;
+
 public class CAppCompatActivity extends AppCompatActivity {
     public void Alert(String text) {Alert(text, Toast.LENGTH_SHORT);}
     public void Alert(String text, Integer time) {Toast.makeText(getApplicationContext(), text, time).show();}

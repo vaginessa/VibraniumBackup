@@ -2,7 +2,6 @@ package com.apkdevs.android.tools.vibraniumbackup.ui;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
@@ -13,22 +12,24 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
-
+import android.widget.Toast;
+import com.apkdevs.android.codelib.CShell;
 import com.apkdevs.android.tools.vibraniumbackup.BackupsAdapter;
 import com.apkdevs.android.tools.vibraniumbackup.R;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class BackupsFragment extends Fragment implements AdapterView.OnItemClickListener {
+public class BackupsFragment extends Fragment implements AdapterView.OnItemClickListener, View.OnClickListener {
     private PackageManager pkgMngr;
     private List<HashMap<String, Object>> applist;
     private BackupsAdapter listAdaptor;
     private View rootView;
     private ListView listView;
+    private int listposition;
 
     public BackupsFragment() {}
 
@@ -55,6 +56,7 @@ public class BackupsFragment extends Fragment implements AdapterView.OnItemClick
           mappedInfo.put("name", appInfo.loadLabel(pkgMngr));
           mappedInfo.put("pkg", appInfo.packageName);
           mappedInfo.put("icon", appInfo.loadIcon(pkgMngr));
+          mappedInfo.put("type", "app");
           applist.add(mappedInfo);
         }
         List<HashMap<String, Object>> bkdpappslist = getBackupUpApps();
@@ -67,7 +69,7 @@ public class BackupsFragment extends Fragment implements AdapterView.OnItemClick
     }
 
     private List<HashMap<String, Object>> getBackupUpApps() {
-        List<HashMap<String, Object>> apps = null;
+        List<HashMap<String, Object>> apps = new ArrayList<>();
         File bkpsDir = new File(BaseActivity.settings.getString("bkpsdir", Environment.getExternalStorageDirectory().getPath() + "/Apps"));
         if (bkpsDir.exists()) {
             //Nothing(for now)
@@ -76,15 +78,36 @@ public class BackupsFragment extends Fragment implements AdapterView.OnItemClick
     }
 
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        listposition = position;
         LayoutInflater inflater = this.getLayoutInflater(null);
         AlertDialog.Builder bdialog = new AlertDialog.Builder(getContext()).setTitle(applist.get(position).get("name").toString());
         View v = inflater.inflate(R.layout.bkps_dialog, null);
+        Button bkp = (Button) v.findViewById(R.id.bkpsd_app_bkp);
+        bkp.setOnClickListener(this);
         bdialog.setView(v);
         AlertDialog dialog = bdialog.create();
         dialog.show();
     }
 
+    public void onClick(View v) {
+        switch(v.getId()) {
+            case R.id.bkpsd_app_bkp:    // Backup button pressed
+                Backup(listposition);
+        }
+    }
 
+    private void Backup(int pos) {
+        HashMap<String, Object> appInfo = applist.get(pos);
+        CShell shell = new CShell("root");
+        String path = "Unknown";
+        if (appInfo.get("type").toString() == "app") {
+            shell.write("pm path " + appInfo.get("pkg"));
+            path = shell.getOutput();
+            shell.clearOutput();
+        }
+        shell.clearOutput();
+        Toast.makeText(getContext(), path, Toast.LENGTH_LONG);
+    }
 
     private class LoadApplications extends AsyncTask<Void, Void, Void> {
         private ProgressDialog progress = null;

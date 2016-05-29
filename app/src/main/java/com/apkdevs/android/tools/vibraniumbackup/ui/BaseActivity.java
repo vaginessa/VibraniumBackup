@@ -19,6 +19,7 @@ import android.widget.Toast;
 
 import com.apkdevs.android.codelib.CAppCompatActivity;
 import com.apkdevs.android.codelib.CLog;
+import com.apkdevs.android.codelib.CShell;
 import com.apkdevs.android.codelib.Prefs;
 import com.apkdevs.android.tools.vibraniumbackup.R;
 
@@ -51,24 +52,6 @@ public class BaseActivity extends CAppCompatActivity {
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
         window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         window.setStatusBarColor(settings.getInt("sb", Color.rgb(0, 0, 0)));
-        // try {Runtime.getRuntime().exec("su");} catch(Exception e) {e.printStackTrace();}
-        try {
-            Process p = Runtime.getRuntime().exec("su");
-            DataOutputStream dos = new DataOutputStream(p.getOutputStream());
-            DataInputStream dis = new DataInputStream(p.getInputStream());
-            dos.writeBytes("ls /sdcard/.aide\n");
-            dos.writeBytes("exit\n");
-            Alert(dis.toString());
-            CLog.V(dis.toString());
-
-            dos.flush();
-            dos.close();
-            p.waitFor();
-        } catch (Exception e) {
-            e.printStackTrace();
-            Alert(e.toString());
-            CLog.E(e.toString());
-        }
     }
 
     @Override

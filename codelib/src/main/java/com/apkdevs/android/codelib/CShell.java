@@ -1,39 +1,57 @@
 package com.apkdevs.android.codelib;
 
-
-import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.InputStreamReader;
+import java.io.IOException;
 
 public class CShell {
     private Process process;
-    DataInputStream dis;
-    DataOutputStream dos;
-
-    public CShell(String command, String args) {
-        try {
-            process = Runtime.getRuntime().exec(command + " " + args);
-            process.waitFor();
-        } catch(Exception e) {e.printStackTrace();}
-    }
-    public String[] getOutput() {
-        String[] output = null;
-        try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String line = null;
-            int i = 0;
-            while ((line = reader.readLine()) != null) {
-                output[i] = line + "\n";
-                CLog.V(line + "\n");
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
+    private DataOutputStream dos;
+    public CShell(String[] command) {
+        if (command[0].equals("root")) {
+            try {
+                process = Runtime.getRuntime().exec(new String[]{"su", "-s", "/system/bin/sh"});
+            } catch(IOException e) {e.printStackTrace(); CLog.E("Error: IOexception");}
+        } else {
+            try {
+                process = Runtime.getRuntime().exec(command);
+            } catch(IOException e) {e.printStackTrace(); CLog.E("Error: IOexception");}
         }
+    }
+    public CShell(String command) {
+        if (command.equals("root")) {
+            try {
+                process = Runtime.getRuntime().exec(new String[]{"su", "-s", "/system/bin/sh"});
+            } catch(IOException e) {e.printStackTrace(); CLog.E("Error: IOexception");}
+        } else {
+            try {
+                process = Runtime.getRuntime().exec(command);
+            } catch(IOException e) {e.printStackTrace(); CLog.E("Error: IOexception");}
+        }
+    }
+    public String getOutput() {
+        String output = "";
+        try {
+            DataInputStream stdout = new DataInputStream(process.getInputStream());
+            byte[] buffer = new byte[4096];
+            int read;
+            while (true) {
+                read = stdout.read(buffer);
+                output += new String(buffer, 0, read);
+                if (read < 4096) {
+                    break;
+                }
+            }
+        } catch(IOException e) {e.printStackTrace(); CLog.E("Error: IOException");}
         return output;
     }
-    public void exec(String command, String args) {
-
+    public void write(String output) {
+        try {
+            dos = new DataOutputStream(process.getOutputStream());
+            dos.writeBytes(output + "\n");
+        } catch(IOException e) {e.printStackTrace(); CLog.E("Error: IOException");}
+    }
+    public void clearOutput() {
+        write("clear");
     }
 }
