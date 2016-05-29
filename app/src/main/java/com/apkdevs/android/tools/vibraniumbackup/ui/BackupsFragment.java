@@ -2,6 +2,7 @@ package com.apkdevs.android.tools.vibraniumbackup.ui;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
@@ -75,6 +76,12 @@ public class BackupsFragment extends Fragment implements AdapterView.OnItemClick
     }
 
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        LayoutInflater inflater = this.getLayoutInflater(null);
+        AlertDialog.Builder bdialog = new AlertDialog.Builder(getContext()).setTitle(applist.get(position).get("name").toString());
+        View v = inflater.inflate(R.layout.bkps_dialog, null);
+        bdialog.setView(v);
+        AlertDialog dialog = bdialog.create();
+        dialog.show();
     }
 
 
