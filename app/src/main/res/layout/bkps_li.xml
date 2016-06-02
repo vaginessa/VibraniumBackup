@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="match_parent" android:layout_height="60dp" >
-
-<RelativeLayout android:id="@+id/bkpsli_root"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/bkpsli_root"
                 android:layout_width="match_parent" android:layout_height="60dp">
 
     <ImageView android:id="@+id/bkpsli_app_icon"
@@ -31,5 +28,4 @@
 
     </LinearLayout>
 
-</RelativeLayout>
 </RelativeLayout>

@@ -29,15 +29,18 @@ public class CShell {
             } catch(IOException e) {e.printStackTrace(); CLog.E("Error: IOexception");}
         }
     }
-    public String getOutput() {
-        String output = "";
+
+    public String[] getOutput() {
+        String[] output = new String[]{};
         try {
             DataInputStream stdout = new DataInputStream(process.getInputStream());
             byte[] buffer = new byte[4096];
             int read;
+            int i = -1;
             while (true) {
+                i++;
                 read = stdout.read(buffer);
-                output += new String(buffer, 0, read);
+                output[i] = new String(buffer, 0, read);
                 if (read < 4096) {
                     break;
                 }
@@ -45,6 +48,7 @@ public class CShell {
         } catch(IOException e) {e.printStackTrace(); CLog.E("Error: IOException");}
         return output;
     }
+
     public void write(String output) {
         try {
             dos = new DataOutputStream(process.getOutputStream());

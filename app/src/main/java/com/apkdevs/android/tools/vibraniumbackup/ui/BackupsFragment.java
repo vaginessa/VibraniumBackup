@@ -86,9 +86,9 @@ public class BackupsFragment extends Fragment implements AdapterView.OnItemClick
         });
         if (bkps == null) return apps;
         for (String bkp : bkps) CLog.V(bkp);
-        /*for (String bkp : bkps) {
-
-        }*/
+        for (String bkp : bkps) {
+            //TODO: Create get backed up apps code
+        }
         return apps;
     }
 
@@ -114,16 +114,16 @@ public class BackupsFragment extends Fragment implements AdapterView.OnItemClick
     private void Backup(int pos) {
         HashMap<String, Object> appInfo = applist.get(pos);
         CShell shell = new CShell("root");
-        String path = "Unknown";
+        String path;
         if (appInfo.get("type").toString().equals("app")) {
             shell.write("pm path " + appInfo.get("pkg").toString());
             path = shell.getOutput();
             path = path.substring(path.indexOf(":") + 1);
             shell.clearOutput("root");
         } else if (appInfo.get("type").toString().equals("bkps")) {
-            
+            path = appInfo.get("path").toString();
         }
-        
+
     }
 
     private class LoadApplications extends AsyncTask<Void, Void, Void> {
