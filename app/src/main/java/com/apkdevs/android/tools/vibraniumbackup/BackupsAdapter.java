@@ -45,8 +45,7 @@ public class BackupsAdapter extends ArrayAdapter<HashMap<String, Object>> {
     public View getView(int position, View convertView, ViewGroup parent) {
         View view = convertView;
         if (null == view) {
-            LayoutInflater layoutInflater = (LayoutInflater) context
-                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             view = layoutInflater.inflate(R.layout.bkps_li, null);
         }
         HashMap<String, Object> appInfo = appsList.get(position);
@@ -56,14 +55,18 @@ public class BackupsAdapter extends ArrayAdapter<HashMap<String, Object>> {
             ImageView iconview = (ImageView) view.findViewById(R.id.bkpsli_app_icon);
             RelativeLayout lL = (RelativeLayout) view.findViewById(R.id.bkpsli_root);
             lL.setBackgroundColor(BaseActivity.settings.getInt("bg", Color.rgb(21, 21, 21)));
+            lL.setVisibility(View.VISIBLE);
             appName.setText(appInfo.get("name").toString());
             appName.setTextColor(BaseActivity.settings.getInt("textcolor", Color.rgb(255, 255, 255)));
+            appName.setVisibility(View.VISIBLE);
             packageName.setText(appInfo.get("pkg").toString());
             packageName.setTextColor(BaseActivity.settings.getInt("textcolor", Color.rgb(255, 255, 255)));
+            packageName.setVisibility(View.VISIBLE);
             Drawable icon = (Drawable) appInfo.get("icon");
             icon.setBounds(48, 48, 48, 48);
-            iconview.setImageDrawable(icon);
+            iconview.setImageDrawable((Drawable) appInfo.get("icon"));
+            iconview.setVisibility(View.VISIBLE);
         }
         return view;
     }
-};
+}

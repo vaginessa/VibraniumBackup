@@ -51,7 +51,15 @@ public class CShell {
             dos.writeBytes(output + "\n");
         } catch(IOException e) {e.printStackTrace(); CLog.E("Error: IOException");}
     }
-    public void clearOutput() {
-        write("clear");
+    public void clearOutput(String command) {
+        if (command.equals("root")) {
+            try {
+                process = Runtime.getRuntime().exec(new String[]{"su", "-s", "/system/bin/sh"});
+            } catch(IOException e) {e.printStackTrace(); CLog.E("Error: IOexception");}
+        } else {
+            try {
+                process = Runtime.getRuntime().exec(command);
+            } catch(IOException e) {e.printStackTrace(); CLog.E("Error: IOexception");}
+        }
     }
 }

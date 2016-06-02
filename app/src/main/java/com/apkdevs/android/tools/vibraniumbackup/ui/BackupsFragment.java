@@ -14,11 +14,13 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.Toast;
+
+import com.apkdevs.android.codelib.CLog;
 import com.apkdevs.android.codelib.CShell;
 import com.apkdevs.android.tools.vibraniumbackup.BackupsAdapter;
 import com.apkdevs.android.tools.vibraniumbackup.R;
 import java.io.File;
+import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -51,15 +53,15 @@ public class BackupsFragment extends Fragment implements AdapterView.OnItemClick
     private List<HashMap<String, Object>> convert(List<ApplicationInfo> list) {
         ArrayList<HashMap<String, Object>> applist = new ArrayList<>();
         for (int i = 0; i < list.size(); i++) {
-          ApplicationInfo appInfo = list.get(i);
-          HashMap<String, Object> mappedInfo = new HashMap<>();
-          mappedInfo.put("name", appInfo.loadLabel(pkgMngr));
-          mappedInfo.put("pkg", appInfo.packageName);
-          mappedInfo.put("icon", appInfo.loadIcon(pkgMngr));
-          mappedInfo.put("type", "app");
-          applist.add(mappedInfo);
+            ApplicationInfo appInfo = list.get(i);
+            HashMap<String, Object> mappedInfo = new HashMap<>();
+            mappedInfo.put("name", appInfo.loadLabel(pkgMngr));
+            mappedInfo.put("pkg", appInfo.packageName);
+            mappedInfo.put("icon", appInfo.loadIcon(pkgMngr));
+            mappedInfo.put("type", "app");
+            applist.add(mappedInfo);
         }
-        List<HashMap<String, Object>> bkdpappslist = getBackupUpApps();
+        List<HashMap<String, Object>> bkdpappslist = getBackedupApps();
         if (bkdpappslist != null) {
             for (int i = 0; i < bkdpappslist.size(); i++) {
                 applist.add(bkdpappslist.get(i));
@@ -68,12 +70,25 @@ public class BackupsFragment extends Fragment implements AdapterView.OnItemClick
         return applist;
     }
 
-    private List<HashMap<String, Object>> getBackupUpApps() {
+    private List<HashMap<String, Object>> getBackedupApps() {
         List<HashMap<String, Object>> apps = new ArrayList<>();
-        File bkpsDir = new File(BaseActivity.settings.getString("bkpsdir", Environment.getExternalStorageDirectory().getPath() + "/Apps"));
-        if (bkpsDir.exists()) {
-            //Nothing(for now)
-        }
+        File bkpsDir = new File(BaseActivity.settings.getString("bkpsdir", Environment.getExternalStorageDirectory().getPath() + "/VB-Apps"));
+        if (!bkpsDir.exists()) bkpsDir.mkdir();
+        String[] bkps = bkpsDir.list(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String filename) {
+                if (filename.substring(filename.lastIndexOf(".")).equals(".prop")) {
+                    return true;
+                }
+                CLog.V(filename.substring(filename.lastIndexOf(".")));
+                return false;
+            }
+        });
+        if (bkps == null) return apps;
+        for (String bkp : bkps) CLog.V(bkp);
+        /*for (String bkp : bkps) {
+
+        }*/
         return apps;
     }
 
@@ -100,13 +115,15 @@ public class BackupsFragment extends Fragment implements AdapterView.OnItemClick
         HashMap<String, Object> appInfo = applist.get(pos);
         CShell shell = new CShell("root");
         String path = "Unknown";
-        if (appInfo.get("type").toString() == "app") {
-            shell.write("pm path " + appInfo.get("pkg"));
+        if (appInfo.get("type").toString().equals("app")) {
+            shell.write("pm path " + appInfo.get("pkg").toString());
             path = shell.getOutput();
-            shell.clearOutput();
+            path = path.substring(path.indexOf(":") + 1);
+            shell.clearOutput("root");
+        } else if (appInfo.get("type").toString().equals("bkps")) {
+            
         }
-        shell.clearOutput();
-        Toast.makeText(getContext(), path, Toast.LENGTH_LONG);
+        
     }
 
     private class LoadApplications extends AsyncTask<Void, Void, Void> {

@@ -15,16 +15,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.Toast;
 
 import com.apkdevs.android.codelib.CAppCompatActivity;
-import com.apkdevs.android.codelib.CLog;
-import com.apkdevs.android.codelib.CShell;
 import com.apkdevs.android.codelib.Prefs;
 import com.apkdevs.android.tools.vibraniumbackup.R;
-
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 
 
 public class BaseActivity extends CAppCompatActivity {
