@@ -1,5 +1,6 @@
 package com.apkdevs.android.codelib;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -63,6 +64,7 @@ public class CAppCompatActivity extends AppCompatActivity {
         return s;
     }
     public Context getAppContext() {return getApplicationContext();}
-    public SharedPreferences getPrefs() {return (SharedPreferences) getPreferences(0);}
+    public SharedPreferences getPrefs() {return getPreferences(0);}
+    public void launchActivity(Class<?> launchclass) {startActivity(new Intent(getAppContext(), launchclass));}
 }
 
