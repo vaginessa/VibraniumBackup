@@ -32,12 +32,11 @@ public class BackupsFragment extends Fragment implements AdapterView.OnItemClick
   private ListView listView;
   private int listposition;
   public File bkpsDir;
+  public AlertDialog adialog;
 
   public BackupsFragment() {}
 
-  public static BackupsFragment newInstance() {
-      return new BackupsFragment();
-  }
+  public static BackupsFragment newInstance() {return new BackupsFragment();}
 
   @Override
   public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -102,8 +101,9 @@ public class BackupsFragment extends Fragment implements AdapterView.OnItemClick
     Button bkp = (Button) v.findViewById(R.id.bkpsd_app_bkp);
     bkp.setOnClickListener(this);
     bdialog.setView(v);
-    AlertDialog dialog = bdialog.create();
-    dialog.show();
+    adialog = bdialog.create();
+    adialog.show();
+    adialog.setCanceledOnTouchOutside(true);
   }
 
   public void onClick(View v) {
@@ -114,15 +114,20 @@ public class BackupsFragment extends Fragment implements AdapterView.OnItemClick
   }
 
   private void Backup(int pos) {
-    ProgressDialog pdialog = new ProgressDialog(getContext(), ProgressDialog.STYLE_SPINNER);
     HashMap<String, Object> appInfo = applist.get(pos);
     ProgressDialog pd = new ProgressDialog(getContext());
+    pd.show();
     pd.setTitle("Backing up" + appInfo.get("name").toString());
+    pd.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+    pd.setMessage("Initializing stuff...");
+    pd.setMax(2);
+    pd.setProgress(0);
     // Location of commands
     String commandpath = getContext().getFilesDir().getPath();
     // Shell
     CShell shell = new CShell("root");
-    // Get path of stuff
+    pd.setProgress(1);
+    // Get path of apk file
       String path;
       Boolean isApp;
       if (appInfo.get("type").toString().equals("app")) {
@@ -135,6 +140,10 @@ public class BackupsFragment extends Fragment implements AdapterView.OnItemClick
         path = appInfo.get("path").toString();
         isApp = false;
       }
+    pd.setProgressStyle(2);
+    pd.setMessage("Copying apk file...");
+    pd.setMax(1);
+    pd.setProgress(0);
     // IF APP: Copy apk file to backups location (with name as "package.apk")
     if (isApp) {
       shell.write("cp " + path + " " +
@@ -144,10 +153,11 @@ public class BackupsFragment extends Fragment implements AdapterView.OnItemClick
         CLog.V(Integer.toString(i) + output[i]);
       }
       shell.reset("root");
+    pd.setProgress(1);
       // Example: cp /data/app/com.aide.ui-1/base.apk /sdcard/VB-Bkps/com.aide.ui.apk
 
 
-      switch (BaseActivity.settings.getString("command", "zip")) {
+      /*switch (BaseActivity.settings.getString("command", "zip")) {
         case "zip":
           // App backup
           shell.write(commandpath + "/exec_zip -" + BaseActivity.settings.getInt("compression", 9) + " "
@@ -160,7 +170,7 @@ public class BackupsFragment extends Fragment implements AdapterView.OnItemClick
         case "gzip":
           shell.write(commandpath + "/exec_gzip -" + BaseActivity.settings.getInt("compression", 9) + " "
             + getContext().getFilesDir().getPath() + "/" + appInfo.get("pkg"));
-      }
+      }*/
     }
   }
 

@@ -10,10 +10,9 @@ public class SettingsActivity extends CAppCompatActivity {
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
+    super.created(savedInstanceState, R.class);
     setContentView(R.layout.lay_s);
-    Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-    setSAB(toolbar);
+    setSAB((Toolbar) findViewById(R.id.toolbar));
     getSAB().setDisplayHomeAsUpEnabled(true);
 
   }
@@ -23,5 +22,4 @@ public class SettingsActivity extends CAppCompatActivity {
     super.onBackPressed();
     launchActivity(BaseActivity.class);
   }
-
 }

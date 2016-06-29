@@ -18,7 +18,6 @@ import android.view.Window;
 import android.view.WindowManager;
 
 import com.apkdevs.android.codelib.CAppCompatActivity;
-import com.apkdevs.android.codelib.CLog;
 import com.apkdevs.android.codelib.Prefs;
 import com.apkdevs.android.tools.vibraniumbackup.R;
 

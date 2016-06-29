@@ -12,29 +12,29 @@ public class CShell {
 
     //Variable-based functions:
         //Constructors:
-            public CShell(String[] command) {
-                if (command[0].equals("root")) {
-                    try {
-                        process = Runtime.getRuntime().exec(new String[]{"su", "-s", "/system/bin/sh"});
-                    } catch(IOException e) {e.printStackTrace(); CLog.E("Error: IOexception");}
-                } else {
-                    try {
-                        process = Runtime.getRuntime().exec(command);
-                    } catch(IOException e) {e.printStackTrace(); CLog.E("Error: IOexception");}
-                }
+          public CShell(String[] command) {
+            if (command[0].equals("root")) {
+              try {
+                process = Runtime.getRuntime().exec(new String[]{"su", "-s", "/system/bin/sh"});
+              } catch(IOException e) {e.printStackTrace(); CLog.E("Error: IOexception");}
+            } else {
+              try {
+                process = Runtime.getRuntime().exec(command);
+              } catch(IOException e) {e.printStackTrace(); CLog.E("Error: IOexception");}
             }
+        }
 
-            public CShell(String command) {
-                if (command.equals("root")) {
-                    try {
-                        process = Runtime.getRuntime().exec(new String[]{"su", "-s", "/system/bin/sh"});
-                    } catch(IOException e) {e.printStackTrace(); CLog.E("Error: IOexception");}
-                } else {
-                    try {
-                        process = Runtime.getRuntime().exec(command);
-                    } catch(IOException e) {e.printStackTrace(); CLog.E("Error: IOexception");}
-                }
+        public CShell(String command) {
+            if (command.equals("root")) {
+                try {
+                    process = Runtime.getRuntime().exec(new String[]{"su", "-s", "/system/bin/sh"});
+                } catch(IOException e) {e.printStackTrace(); CLog.E("Error: IOexception");}
+            } else {
+              try {
+                  process = Runtime.getRuntime().exec(command);
+              } catch(IOException e) {e.printStackTrace(); CLog.E("Error: IOexception");}
             }
+          }
 
         public ArrayList<String> getOutput() {
             ArrayList<String> output = new ArrayList<>();
