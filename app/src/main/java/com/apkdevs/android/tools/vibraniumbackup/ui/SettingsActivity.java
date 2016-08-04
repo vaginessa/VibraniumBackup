@@ -8,18 +8,18 @@ import com.apkdevs.android.tools.vibraniumbackup.R;
 
 public class SettingsActivity extends CAppCompatActivity {
 
-  @Override
-  protected void onCreate(Bundle savedInstanceState) {
-    super.created(savedInstanceState, R.class);
-    setContentView(R.layout.lay_s);
-    setSAB((Toolbar) findViewById(R.id.toolbar));
-    getSAB().setDisplayHomeAsUpEnabled(true);
+	@Override
+	protected void onCreate(Bundle b) {
+		super.onCreate(b, R.class);
+		setContentView(R.layout.lay_s);
+		setSAB((Toolbar) findViewById(R.id.toolbar));
+		getSAB().setDisplayHomeAsUpEnabled(true);
 
-  }
+	}
 
-  @Override
-  public void onBackPressed() {
-    super.onBackPressed();
-    launchActivity(BaseActivity.class);
-  }
+	@Override
+	public void onBackPressed() {
+		super.onBackPressed();
+		launchActivity(BaseActivity.class);
+	}
 }

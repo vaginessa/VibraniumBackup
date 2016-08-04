@@ -10,16 +10,16 @@ import com.apkdevs.android.tools.vibraniumbackup.R;
 
 public class SchedulesFragment extends Fragment {
 
-    public SchedulesFragment() {}
+		public SchedulesFragment() {}
 
-    public static SchedulesFragment newInstance() {
-        SchedulesFragment fragment = new SchedulesFragment();
-        return fragment;
-    }
+		public static SchedulesFragment newInstance() {
+				SchedulesFragment fragment = new SchedulesFragment();
+				return fragment;
+		}
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.frag_schd, container, false);
-        return rootView;
-    }
+		@Override
+		public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+				View rootView = inflater.inflate(R.layout.frag_schd, container, false);
+				return rootView;
+		}
 }

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest package="com.apkdevs.android.tools.vibraniumbackup"
-          xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.apkdevs.android.tools.vibraniumbackup">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
@@ -29,6 +29,8 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.apkdevs.android.tools.vibraniumbackup.ui.BaseActivity"/>
+        </activity>
+        <activity android:name=".ui.AppDetails">
         </activity>
     </application>
 

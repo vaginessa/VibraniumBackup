@@ -14,11 +14,6 @@ import android.support.v7.widget.Toolbar;
 
 import com.apkdevs.android.codelib.ui.TypefaceSpan;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.util.Objects;
-
 public class CAppCompatActivity extends AppCompatActivity {
 	// Variables
 		// Private
@@ -62,9 +57,18 @@ public class CAppCompatActivity extends AppCompatActivity {
 			}*/
 
 	// onCreate tools
-		public void created(Bundle sis, Class res) {
-			super.onCreate(sis);
-			Res = res;
+		public void create(Bundle b) {
+			onCreate(b);
+		}
+
+		protected void onCreate(Bundle b, Class r) {
+			onCreate(b);
+			Object R;
+			Res = r;
+			try {
+				R = r.newInstance();
+			} catch (Exception e) { e.printStackTrace(); CLog.E("Custom onCreate failed!"); }
+
 		}
 
 	// FindVIew improvements
