@@ -17,7 +17,6 @@ import android.widget.Button;
 import android.widget.ListView;
 
 import com.apkdevs.android.codelib.CLog;
-import com.apkdevs.android.codelib.CShell;
 import com.apkdevs.android.tools.vibraniumbackup.BackupsAdapter;
 import com.apkdevs.android.tools.vibraniumbackup.R;
 import java.io.File;
@@ -28,7 +27,7 @@ import java.util.List;
 
 public class BackupsFragment extends Fragment implements AdapterView.OnItemClickListener, View.OnClickListener {
 	private PackageManager pkgMngr;
-	private List<HashMap<String, Object>> applist;
+	public List<HashMap<String, Object>> applist;
 	private BackupsAdapter listAdaptor;
 	private ListView listView;
 	private int listposition;

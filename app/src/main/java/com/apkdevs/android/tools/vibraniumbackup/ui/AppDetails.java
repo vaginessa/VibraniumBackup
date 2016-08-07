@@ -2,9 +2,12 @@ package com.apkdevs.android.tools.vibraniumbackup.ui;
 
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutCompat;
 import android.support.v7.widget.Toolbar;
+import android.view.View;
 import android.widget.Button;
 
 import com.apkdevs.android.codelib.CAppCompatActivity;
@@ -17,7 +20,9 @@ import java.util.HashMap;
 import java.util.List;
 
 public class AppDetails extends CAppCompatActivity {
-		static String pkg;
+		static String pkg, name;
+		static Boolean type;
+		static Drawable icon;
 		static CShell shell;
 		static ArrayList<HashMap<String, Object>> bkps;
 		static PackageManager pm;
@@ -36,6 +41,7 @@ public class AppDetails extends CAppCompatActivity {
 			shell = new CShell("root");
 			pm = BaseActivity.getACAPkgMngr();
 			List<ApplicationInfo> list = pm.getInstalledApplications(PackageManager.GET_META_DATA);
+			bBkp = (Button) findView(R.id.lappdm_bkp);
 			// App package
 				if (savedInstanceState == null) {
 					Bundle extras = getIntent().getExtras();
@@ -45,16 +51,21 @@ public class AppDetails extends CAppCompatActivity {
 				bkps = new ArrayList<>();
 				for (int i = 0; i < list.size(); i++) {
 					ApplicationInfo appInfo = list.get(i);
-					HashMap<String, Object> mappedInfo = new HashMap<>();
-					mappedInfo.put("name", appInfo.loadLabel(pm));
-					mappedInfo.put("pkg", appInfo.packageName);
-					mappedInfo.put("icon", appInfo.loadIcon(pm));
-					mappedInfo.put("type", "app");
-					bkps.add(mappedInfo);
+					if (appInfo.packageName.equals(pkg)) {
+						name = (String) appInfo.loadLabel(pm);
+						icon = appInfo.loadIcon(pm);
+						break;
+					}
 				}
 				//List<HashMap<String, Object>> bkdpappslist = getBackedupApps();
 				//if (bkdpappslist != null) { for (int i = 0; i < bkdpappslist.size(); i++) {	bkps.add(bkdpappslist.get(i));	} }
+		bBkp.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				AlertDialog.Builder db = new AlertDialog.Builder(getAppContext()).setTitle(name).setIcon(icon);
 
+			}
+		});
 	}
 	
 }

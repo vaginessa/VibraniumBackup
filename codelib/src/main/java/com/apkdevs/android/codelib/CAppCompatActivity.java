@@ -43,32 +43,9 @@ public class CAppCompatActivity extends AppCompatActivity {
 				setSupportActionBar(toolbar);
 			}
 
-			/*public void setDefSAB() {
-				if (Res == null) {
-					Log.e("apkdevs.lib.Activity", "Custom method setDefSAB (Set Default Support Action Bar requires the variable Res of type Class<?> to be set");
-					finish();
-				}
-				try {
-
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-				// Toolbar tlbar = findView()
-			}*/
-
 	// onCreate tools
-		public void create(Bundle b) {
-			onCreate(b);
-		}
-
 		protected void onCreate(Bundle b, Class r) {
-			onCreate(b);
-			Object R;
-			Res = r;
-			try {
-				R = r.newInstance();
-			} catch (Exception e) { e.printStackTrace(); CLog.E("Custom onCreate failed!"); }
-
+			super.onCreate(b);
 		}
 
 	// FindVIew improvements
