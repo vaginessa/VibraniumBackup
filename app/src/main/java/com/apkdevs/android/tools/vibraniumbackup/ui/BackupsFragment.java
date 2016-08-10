@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -27,7 +28,7 @@ import java.util.List;
 
 public class BackupsFragment extends Fragment implements AdapterView.OnItemClickListener, View.OnClickListener {
 	private PackageManager pkgMngr;
-	public List<HashMap<String, Object>> applist;
+	public static List<HashMap<String, Object>> applist;
 	private BackupsAdapter listAdaptor;
 	private ListView listView;
 	private int listposition;
@@ -53,11 +54,19 @@ public class BackupsFragment extends Fragment implements AdapterView.OnItemClick
 		ArrayList<HashMap<String, Object>> applist = new ArrayList<>();
 		for (int i = 0; i < list.size(); i++) {
 			ApplicationInfo appInfo = list.get(i);
+			PackageInfo pI = null;
+			try { pI = pkgMngr.getPackageInfo(appInfo.packageName, 0); } catch(PackageManager.NameNotFoundException err) { err.printStackTrace(); }
 			HashMap<String, Object> mappedInfo = new HashMap<>();
 			mappedInfo.put("name", appInfo.loadLabel(pkgMngr));
 			mappedInfo.put("pkg", appInfo.packageName);
 			mappedInfo.put("icon", appInfo.loadIcon(pkgMngr));
 			mappedInfo.put("type", "app");
+			if (pI != null) {
+				mappedInfo.put("ver_int", pI.versionCode);
+				mappedInfo.put("ver_str", pI.versionName);
+			} else {
+				CLog.V("PackageInfo for" + appInfo.packageName + " not found.");
+			}
 			applist.add(mappedInfo);
 		}
 		List<HashMap<String, Object>> bkdpappslist = getBackedupApps();
@@ -91,26 +100,15 @@ public class BackupsFragment extends Fragment implements AdapterView.OnItemClick
 
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 		listposition = position;
-		LayoutInflater inflater = this.getLayoutInflater(null);
-		AlertDialog.Builder bdialog = new AlertDialog.Builder(getContext()).setTitle(applist.get(position).get("name").toString());
-		View v = inflater.inflate(R.layout.bkps_dialog, null);
-		Button bkp = (Button) v.findViewById(R.id.bkpsd_app_bkp);
-		bkp.setOnClickListener(this);
-		bdialog.setView(v);
-		adialog = bdialog.create();
-		adialog.show();
-		adialog.setCanceledOnTouchOutside(true);
+		Intent i = new Intent(getContext(), AppDetails.class);
+		i.putExtra("APP_PKG", applist.get(position).get("pkg").toString());
+		startActivity(i);
 	}
 
 	public void onClick(View v) {
-		switch(v.getId()) {
-			case R.id.bkpsd_app_bkp:		// Backup button pressed
-				Backup(listposition);
-		}
+
 	}
 
-	private void Backup(int pos) {
-		HashMap<String, Object> appInfo = applist.get(pos);
 		/*ProgressDialog pd = new ProgressDialog(getContext());
 		pd.show();
 		pd.setTitle("Backing up" + appInfo.get("name").toString());
@@ -168,10 +166,6 @@ public class BackupsFragment extends Fragment implements AdapterView.OnItemClick
 						+ gContext().getFilesDir().getPath() + "/" + appInfo.get("pkg"));
 			}
 		}*/
-		Intent i = new Intent(getContext(), AppDetails.class);
-		i.putExtra("APP_PKG", appInfo.get("pkg").toString());
-		startActivity(i);
-	}
 
 	private class LoadApplications extends AsyncTask<Void, Void, Void> {
 			private ProgressDialog progress = null;

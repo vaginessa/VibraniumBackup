@@ -10,7 +10,7 @@ public class SettingsActivity extends CAppCompatActivity {
 
 	@Override
 	protected void onCreate(Bundle b) {
-		super.onCreate(b, R.class);
+		super.onCreate(b);
 		setContentView(R.layout.lay_s);
 		setSAB((Toolbar) findViewById(R.id.toolbar));
 		getSAB().setDisplayHomeAsUpEnabled(true);

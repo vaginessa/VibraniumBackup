@@ -1,7 +1,9 @@
 package com.apkdevs.android.codelib;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -17,7 +19,7 @@ import com.apkdevs.android.codelib.ui.TypefaceSpan;
 public class CAppCompatActivity extends AppCompatActivity {
 	// Variables
 		// Private
-			private Class Res = null;
+			private Resources Res = null;
 
 	// Alerting
 		// Toasts
@@ -44,8 +46,12 @@ public class CAppCompatActivity extends AppCompatActivity {
 			}
 
 	// onCreate tools
-		protected void onCreate(Bundle b, Class r) {
+		protected void onCreate(Bundle b) {
 			super.onCreate(b);
+			Res = getResources();
+			/*if (Res != null) {
+				int tlbr = Res.getClass("id").getInt("toolbar");
+			}*/
 		}
 
 	// FindVIew improvements

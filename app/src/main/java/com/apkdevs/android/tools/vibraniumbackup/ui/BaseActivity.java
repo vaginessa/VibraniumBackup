@@ -19,11 +19,15 @@ import android.view.Window;
 import android.view.WindowManager;
 
 import com.apkdevs.android.codelib.CAppCompatActivity;
+import com.apkdevs.android.codelib.CLog;
+import com.apkdevs.android.codelib.CShell;
 import com.apkdevs.android.codelib.Prefs;
 import com.apkdevs.android.tools.vibraniumbackup.R;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 
 public class BaseActivity extends CAppCompatActivity {
@@ -54,17 +58,14 @@ public class BaseActivity extends CAppCompatActivity {
 			window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
 			window.setStatusBarColor(settings.getInt("sb", Color.rgb(0, 0, 0)));
 			// Add commands to data/data
-				File existingzip = new File("/system/bin/zip");
+				/*File existingzip = new File("/system/bin/zip");
 				File embeddedzip = new File("file:///android_asset/scripts/zip");
-				if (!existingzip.exists()) {
-					File midzip = embeddedzip.getAbsoluteFile();
-					midzip.renameTo(existingzip);
-					try {
-						midzip.createNewFile();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				}
+				URI zip;
+				try {
+					zip = new URI("file:///android_asset/scripts/zip");
+					CLog.V(zip.getPath());
+					CShell.execute("su -c cp" + zip.getPath() + "/system/bin/zip");
+				} catch(URISyntaxException err) { err.printStackTrace(); CLog.E("Could not copy zip binary to /system/bin"); }
 				File existingaapt = new File("/system/bin/aapt");
 				File embeddedaapt = new File("file:///android_asset/scripts/aapt");
 				if (!existingaapt.exists()) {
@@ -77,7 +78,7 @@ public class BaseActivity extends CAppCompatActivity {
 					}
 				}
 				File bkpLoc = new File(settings.getString("bkpsdir", "/sdcard/VB-Bkps"));
-				if (!bkpLoc.exists()) {bkpLoc.mkdir();}
+				if (!bkpLoc.exists()) {bkpLoc.mkdir();}*/
 		}
 
 		@Override

@@ -1,34 +1,44 @@
 package com.apkdevs.android.tools.vibraniumbackup.ui;
 
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
+import android.app.ProgressDialog;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.v7.app.AlertDialog;
+import android.os.Environment;
 import android.support.v7.widget.LinearLayoutCompat;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.apkdevs.android.codelib.CAppCompatActivity;
 import com.apkdevs.android.codelib.CLog;
 import com.apkdevs.android.codelib.CShell;
 import com.apkdevs.android.tools.vibraniumbackup.R;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
 public class AppDetails extends CAppCompatActivity {
-		static String pkg, name;
+		static String pkg, name, ver_str;
+		static int ver_int;
 		static Boolean type;
 		static Drawable icon;
 		static CShell shell;
 		static ArrayList<HashMap<String, Object>> bkps;
-		static PackageManager pm;
+		static File bkpsDir;
 		// Graphical
 			static Button bBkp;
 			static LinearLayoutCompat llBkps;
+			static TextView tPkg;
+			static TextView tVer;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -36,12 +46,14 @@ public class AppDetails extends CAppCompatActivity {
 			super.onCreate(savedInstanceState);
 			setContentView(R.layout.lay_appd);
 			setSAB((Toolbar) findView(R.id.lappdm_toolbar));
-			getSAB().setDisplayHomeAsUpEnabled(true);
+			getSAB().setDisplayHomeAsUpEnabled(false);
 		// Setup variables
 			shell = new CShell("root");
-			pm = BaseActivity.getACAPkgMngr();
-			List<ApplicationInfo> list = pm.getInstalledApplications(PackageManager.GET_META_DATA);
+			List<HashMap<String, Object>> list = BackupsFragment.applist;
 			bBkp = (Button) findView(R.id.lappdm_bkp);
+			tPkg = (TextView) findView(R.id.lappdm_pkg);
+			tVer = (TextView) findView(R.id.lappdm_ver);
+			bkpsDir = new File(BaseActivity.settings.getString("bkpsdir", Environment.getExternalStorageDirectory().getPath() + "/VB-Apps"));
 			// App package
 				if (savedInstanceState == null) {
 					Bundle extras = getIntent().getExtras();
@@ -50,22 +62,56 @@ public class AppDetails extends CAppCompatActivity {
 			// Backups
 				bkps = new ArrayList<>();
 				for (int i = 0; i < list.size(); i++) {
-					ApplicationInfo appInfo = list.get(i);
-					if (appInfo.packageName.equals(pkg)) {
-						name = (String) appInfo.loadLabel(pm);
-						icon = appInfo.loadIcon(pm);
+					HashMap<String, Object> aI = list.get(i);
+					if (aI.get("pkg").toString().equals(pkg)) {
+						icon = (Drawable) aI.get("icon");
+						name = aI.get("name").toString();
+						ver_int = (int) aI.get("ver_int");
+						ver_str = aI.get("ver_str").toString();
 						break;
 					}
 				}
-				//List<HashMap<String, Object>> bkdpappslist = getBackedupApps();
-				//if (bkdpappslist != null) { for (int i = 0; i < bkdpappslist.size(); i++) {	bkps.add(bkdpappslist.get(i));	} }
+			getSAB().setTitle(name);
+			icon.setBounds(48, 48, 48, 48);
+			getSAB().setLogo(icon);
+			tPkg.setText(pkg);
+			tVer.setText(ver_int + ver_str);
 		bBkp.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				AlertDialog.Builder db = new AlertDialog.Builder(getAppContext()).setTitle(name).setIcon(icon);
-
+				ProgressDialog pd = new ProgressDialog(getAppContext());
+				pd.show(AppDetails.this, "Backing up " + name, "Initialising");
+				pd.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+				pd.setMax(2);
+				pd.setProgress(0);
+				DateFormat df = new SimpleDateFormat("HHmmss-yyMMdd");
+				Date date = new Date();
+				File prop_f = new File(bkpsDir.getPath() + pkg + "-" + df.format(date) + ".prop");
+				try { prop_f.createNewFile(); } catch(IOException err) { CLog.V("propFile.createNewFile() failed, using SuperUser"); CShell.execute("su -c touch " + prop_f.getPath()); }
+				pd.setProgress(1);
+				FileWriter prop_w;
+				try {
+					prop_w = new FileWriter(prop_f);
+					prop_w.write("name=" + name);
+					prop_w.write("verint=" + ver_int);
+					prop_w.write("verstr=" + ver_str);
+				} catch(IOException err) { err.printStackTrace(); }
+				pd.setProgress(2);
+				pd.setMessage("Copying & compressing app");
+				pd.setMax(2);
+				String dest = bkpsDir + "/" + pkg + "-" + df.format(date) + ".apk";
+				String dir = CShell.execute("echo \"" + pkg + "-*\"").get(0);
+				shell.write("cp /data/app/" + dir + "/base.apk " + dest);
+				pd.setProgress(1);
+				switch (BaseActivity.settings.getString("pkgr", "zip")) {
+					case "zip": shell.write(getFilesDir().getPath() + "/zip -" + BaseActivity.settings.getInt("compression", 5) +
+						" " + dest.substring(-3) + "app " + dest);
+				}
+				pd.setProgress(2);
+				pd.setMessage("Can't save data yet. Thanks!");
+				pd.hide();
+				pd.dismiss();
 			}
 		});
 	}
-	
 }

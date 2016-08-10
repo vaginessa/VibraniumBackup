@@ -30,7 +30,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.apkdevs.android.tools.vibraniumbackup.ui.BaseActivity"/>
         </activity>
-        <activity android:name=".ui.AppDetails">
+        <activity android:name=".ui.AppDetails" android:theme="@style/AppTheme.NoActionBar">
         </activity>
     </application>
 
