@@ -4,7 +4,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.AssetManager;
 import android.graphics.Color;
+import android.os.Environment;
 import android.support.design.widget.TabLayout;
 import android.support.v7.widget.Toolbar;
 
@@ -24,11 +26,10 @@ import com.apkdevs.android.codelib.CShell;
 import com.apkdevs.android.codelib.Prefs;
 import com.apkdevs.android.tools.vibraniumbackup.R;
 
-import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-
+import java.io.InputStream;
+import java.io.OutputStream;
 
 public class BaseActivity extends CAppCompatActivity {
 		public static PackageManager PKGMngr;
@@ -41,7 +42,7 @@ public class BaseActivity extends CAppCompatActivity {
 			// Default
 			super.onCreate(savedInstanceState);
 			setContentView(R.layout.lay_m);
-			//Typeface androidFont = Typeface.createFromAsset(getAssets(), "fonts/Android.ttf");
+			/////////////////////////////Typeface androidFont = Typeface.createFromAsset(getAssets(), "fonts/Android.ttf");
 			// Setup additional items (Actionbar, TabLayout)
 			setSAB((Toolbar) findView(R.id.toolbar, "toolbar"));
 			ViewPager mViewPager = ((ViewPager) findView(R.id.container, "container"));
@@ -57,28 +58,19 @@ public class BaseActivity extends CAppCompatActivity {
 			window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
 			window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
 			window.setStatusBarColor(settings.getInt("sb", Color.rgb(0, 0, 0)));
-			// Add commands to data/data
-				/*File existingzip = new File("/system/bin/zip");
-				File embeddedzip = new File("file:///android_asset/scripts/zip");
-				URI zip;
-				try {
-					zip = new URI("file:///android_asset/scripts/zip");
-					CLog.V(zip.getPath());
-					CShell.execute("su -c cp" + zip.getPath() + "/system/bin/zip");
-				} catch(URISyntaxException err) { err.printStackTrace(); CLog.E("Could not copy zip binary to /system/bin"); }
-				File existingaapt = new File("/system/bin/aapt");
-				File embeddedaapt = new File("file:///android_asset/scripts/aapt");
-				if (!existingaapt.exists()) {
-					File midaapt = embeddedaapt.getAbsoluteFile();
-					midaapt.renameTo(existingaapt);
-					try {
-						midaapt.createNewFile();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				}
-				File bkpLoc = new File(settings.getString("bkpsdir", "/sdcard/VB-Bkps"));
-				if (!bkpLoc.exists()) {bkpLoc.mkdir();}*/
+			AssetManager aM = getAssets();
+			try {
+				InputStream zipi = aM.open("scripts/zip");
+				OutputStream zipo = new FileOutputStream(getFilesDir() + "/zip");
+				byte[] zb = new byte[1024];	int zr;
+				while ((zr = zipi.read(zb)) != -1) zipo.write(zb, 0, zr);
+				//TODO: Add 'gzip' to assets/scripts
+				/*InputStream gipi = aM.open("scripts/gzip");
+				OutputStream gipo = new FileOutputStream(getFilesDir() + "/gzip");
+				byte[] gb = new byte[1024];	int gr;
+				while ((gr = gipi.read(zb)) != -1) gipo.write(gb, 0, gr);*/
+			} catch(IOException e) { e.printStackTrace(); }
+			//CShell.execute("/system/bin/sh -c if [ ! -f \"" + getFilesDir() + "/zip ]; then cp ")
 		}
 
 		@Override
@@ -120,5 +112,4 @@ public class BaseActivity extends CAppCompatActivity {
 				}
 		}
 	public static PackageManager getACAPkgMngr() {return PKGMngr;}
-	private void launch(Intent i) { startActivity(i); }
 }

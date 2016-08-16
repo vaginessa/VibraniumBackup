@@ -1,19 +1,21 @@
 package com.apkdevs.android.tools.vibraniumbackup.ui;
 
 import android.app.ProgressDialog;
+import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.widget.LinearLayoutCompat;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.apkdevs.android.codelib.CAppCompatActivity;
 import com.apkdevs.android.codelib.CLog;
 import com.apkdevs.android.codelib.CShell;
+import com.apkdevs.android.tools.vibraniumbackup.BackupsAdapter;
 import com.apkdevs.android.tools.vibraniumbackup.R;
 
 import java.io.File;
@@ -75,18 +77,21 @@ public class AppDetails extends CAppCompatActivity {
 			icon.setBounds(48, 48, 48, 48);
 			getSAB().setLogo(icon);
 			tPkg.setText(pkg);
-			tVer.setText(ver_int + ver_str);
+			tVer.setText(ver_str + ": " + String.format("%d", ver_int));
 		bBkp.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				ProgressDialog pd = new ProgressDialog(getAppContext());
-				pd.show(AppDetails.this, "Backing up " + name, "Initialising");
+				new Backup(AppDetails.this).execute();
+				/*ProgressDialog pd = new ProgressDialog(AppDetails.this);
+				pd.setTitle("Backing up" + name); pd.setMessage("Initialising");
+				pd.setCancelable(true); pd.setCanceledOnTouchOutside(false);
 				pd.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 				pd.setMax(2);
 				pd.setProgress(0);
+				pd.show();
 				DateFormat df = new SimpleDateFormat("HHmmss-yyMMdd");
 				Date date = new Date();
-				File prop_f = new File(bkpsDir.getPath() + pkg + "-" + df.format(date) + ".prop");
+				File prop_f = new File(bkpsDir.getPath() + "/" + pkg + "-" + df.format(date) + ".prop");
 				try { prop_f.createNewFile(); } catch(IOException err) { CLog.V("propFile.createNewFile() failed, using SuperUser"); CShell.execute("su -c touch " + prop_f.getPath()); }
 				pd.setProgress(1);
 				FileWriter prop_w;
@@ -95,23 +100,96 @@ public class AppDetails extends CAppCompatActivity {
 					prop_w.write("name=" + name);
 					prop_w.write("verint=" + ver_int);
 					prop_w.write("verstr=" + ver_str);
-				} catch(IOException err) { err.printStackTrace(); }
+				} catch(IOException err) {
+					CLog.V("FileWriter for prop file failed, using shell commands");
+					CShell shell = new CShell("root");
+					shell.write("echo \"name=" + name + "\" > " + prop_f.getPath());
+					shell.write("echo \"verint=" + ver_int + "\" > " + prop_f.getPath());
+					shell.write("echo \"verstr=" + ver_str + "\" > " + prop_f.getPath());
+				}
 				pd.setProgress(2);
 				pd.setMessage("Copying & compressing app");
 				pd.setMax(2);
 				String dest = bkpsDir + "/" + pkg + "-" + df.format(date) + ".apk";
-				String dir = CShell.execute("echo \"" + pkg + "-*\"").get(0);
-				shell.write("cp /data/app/" + dir + "/base.apk " + dest);
+				String dir = CShell.execute("/system/xbin/su -c echo /data/app/" + pkg + "-*").get(0);
+				shell.write("cp " + dir + "/base.apk " + dest);
 				pd.setProgress(1);
 				switch (BaseActivity.settings.getString("pkgr", "zip")) {
 					case "zip": shell.write(getFilesDir().getPath() + "/zip -" + BaseActivity.settings.getInt("compression", 5) +
-						" " + dest.substring(-3) + "app " + dest);
+						" " + dest.substring(0, dest.length() - 3) + "app " + dest);
 				}
 				pd.setProgress(2);
 				pd.setMessage("Can't save data yet. Thanks!");
-				pd.hide();
-				pd.dismiss();
+				pd.dismiss();*/
 			}
 		});
+	}
+	private class Backup extends AsyncTask<Void, Void, Void> {
+		private ProgressDialog pd;
+
+		Backup(AppDetails a) {
+			pd = new ProgressDialog(a);
+		}
+
+		@Override
+		protected Void doInBackground(Void... params) {
+			pd.setMax(2);
+			pd.setProgress(0);
+			DateFormat df = new SimpleDateFormat("HHmmss-yyMMdd");
+			Date date = new Date();
+			File prop_f = new File(bkpsDir.getPath() + "/" + pkg + "-" + df.format(date) + ".prop");
+			try { prop_f.createNewFile(); } catch(IOException err) { CLog.V("propFile.createNewFile() failed, using SuperUser"); CShell.execute("su -c touch " + prop_f.getPath()); }
+			FileWriter prop_w;
+			try {
+				prop_w = new FileWriter(prop_f);
+				prop_w.write("name=" + name);
+				prop_w.write("verint=" + ver_int);
+				prop_w.write("verstr=" + ver_str);
+			} catch(IOException err) {
+				CLog.V("FileWriter for prop file failed, using shell commands");
+				CShell shell = new CShell("root");
+				shell.write("echo \"name=" + name + "\" > " + prop_f.getPath());
+				shell.write("echo \"verint=" + ver_int + "\" > " + prop_f.getPath());
+				shell.write("echo \"verstr=" + ver_str + "\" > " + prop_f.getPath());
+			}
+			runOnUiThread(new Runnable() {@Override	public void run() {pd.setMessage("Copying app to backups directory");}});
+			CLog.V("Copying");
+			String dest = bkpsDir + "/" + pkg + "-" + df.format(date) + ".apk";
+			String dir = CShell.execute("/system/xbin/su -c echo /data/app/" + pkg + "-*").get(0);
+			CLog.V("  Running shell");
+			shell.write("cp " + dir + "/base.apk " + dest); CLog.V("  Waiting"); shell.waitForEnd();
+			CLog.V("Done. Zipping");
+			runOnUiThread(new Runnable() {@Override	public void run() {pd.setMessage("Compressing app");}});
+			switch (BaseActivity.settings.getString("pkgr", "zip")) {
+				case "zip": shell.write(getFilesDir().getPath() + "/zip -" + BaseActivity.settings.getInt("compression", 5) +
+					" " + dest.substring(0, dest.length() - 3) + "app " + dest);
+			}
+			CLog.V("Waiting for zip");
+			shell.waitForEnd();
+			runOnUiThread(new Runnable() {@Override	public void run() {pd.dismiss();}});
+			return null;
+		}
+
+		@Override
+		protected void onCancelled() { super.onCancelled();	}
+
+		@Override
+		protected void onPostExecute(Void result) {
+			super.onPostExecute(result);
+		}
+
+		@Override
+		protected void onPreExecute() {
+			super.onPreExecute();
+			pd.setTitle("Backing up " + name); pd.setMessage("Initialising");
+			pd.setCancelable(false); pd.setCanceledOnTouchOutside(false);
+			pd.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+			pd.show();
+		}
+
+		@Override
+		protected void onProgressUpdate(Void... values) {
+			super.onProgressUpdate(values);
+		}
 	}
 }
