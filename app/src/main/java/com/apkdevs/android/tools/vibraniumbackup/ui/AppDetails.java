@@ -1,7 +1,6 @@
 package com.apkdevs.android.tools.vibraniumbackup.ui;
 
 import android.app.ProgressDialog;
-import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -15,7 +14,6 @@ import android.widget.TextView;
 import com.apkdevs.android.codelib.CAppCompatActivity;
 import com.apkdevs.android.codelib.CLog;
 import com.apkdevs.android.codelib.CShell;
-import com.apkdevs.android.tools.vibraniumbackup.BackupsAdapter;
 import com.apkdevs.android.tools.vibraniumbackup.R;
 
 import java.io.File;
@@ -33,7 +31,6 @@ public class AppDetails extends CAppCompatActivity {
 		static int ver_int;
 		static Boolean type;
 		static Drawable icon;
-		static CShell shell;
 		static ArrayList<HashMap<String, Object>> bkps;
 		static File bkpsDir;
 		// Graphical
@@ -50,7 +47,6 @@ public class AppDetails extends CAppCompatActivity {
 			setSAB((Toolbar) findView(R.id.lappdm_toolbar));
 			getSAB().setDisplayHomeAsUpEnabled(false);
 		// Setup variables
-			shell = new CShell("root");
 			List<HashMap<String, Object>> list = BackupsFragment.applist;
 			bBkp = (Button) findView(R.id.lappdm_bkp);
 			tPkg = (TextView) findView(R.id.lappdm_pkg);
@@ -78,58 +74,12 @@ public class AppDetails extends CAppCompatActivity {
 			getSAB().setLogo(icon);
 			tPkg.setText(pkg);
 			tVer.setText(ver_str + ": " + String.format("%d", ver_int));
-		bBkp.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				new Backup(AppDetails.this).execute();
-				/*ProgressDialog pd = new ProgressDialog(AppDetails.this);
-				pd.setTitle("Backing up" + name); pd.setMessage("Initialising");
-				pd.setCancelable(true); pd.setCanceledOnTouchOutside(false);
-				pd.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-				pd.setMax(2);
-				pd.setProgress(0);
-				pd.show();
-				DateFormat df = new SimpleDateFormat("HHmmss-yyMMdd");
-				Date date = new Date();
-				File prop_f = new File(bkpsDir.getPath() + "/" + pkg + "-" + df.format(date) + ".prop");
-				try { prop_f.createNewFile(); } catch(IOException err) { CLog.V("propFile.createNewFile() failed, using SuperUser"); CShell.execute("su -c touch " + prop_f.getPath()); }
-				pd.setProgress(1);
-				FileWriter prop_w;
-				try {
-					prop_w = new FileWriter(prop_f);
-					prop_w.write("name=" + name);
-					prop_w.write("verint=" + ver_int);
-					prop_w.write("verstr=" + ver_str);
-				} catch(IOException err) {
-					CLog.V("FileWriter for prop file failed, using shell commands");
-					CShell shell = new CShell("root");
-					shell.write("echo \"name=" + name + "\" > " + prop_f.getPath());
-					shell.write("echo \"verint=" + ver_int + "\" > " + prop_f.getPath());
-					shell.write("echo \"verstr=" + ver_str + "\" > " + prop_f.getPath());
-				}
-				pd.setProgress(2);
-				pd.setMessage("Copying & compressing app");
-				pd.setMax(2);
-				String dest = bkpsDir + "/" + pkg + "-" + df.format(date) + ".apk";
-				String dir = CShell.execute("/system/xbin/su -c echo /data/app/" + pkg + "-*").get(0);
-				shell.write("cp " + dir + "/base.apk " + dest);
-				pd.setProgress(1);
-				switch (BaseActivity.settings.getString("pkgr", "zip")) {
-					case "zip": shell.write(getFilesDir().getPath() + "/zip -" + BaseActivity.settings.getInt("compression", 5) +
-						" " + dest.substring(0, dest.length() - 3) + "app " + dest);
-				}
-				pd.setProgress(2);
-				pd.setMessage("Can't save data yet. Thanks!");
-				pd.dismiss();*/
-			}
-		});
+		bBkp.setOnClickListener(new View.OnClickListener() {@Override public void onClick(View v) {new Backup(AppDetails.this).execute();}});
 	}
 	private class Backup extends AsyncTask<Void, Void, Void> {
 		private ProgressDialog pd;
 
-		Backup(AppDetails a) {
-			pd = new ProgressDialog(a);
-		}
+		Backup(AppDetails a) {pd = new ProgressDialog(a);}
 
 		@Override
 		protected Void doInBackground(Void... params) {
@@ -155,17 +105,15 @@ public class AppDetails extends CAppCompatActivity {
 			runOnUiThread(new Runnable() {@Override	public void run() {pd.setMessage("Copying app to backups directory");}});
 			CLog.V("Copying");
 			String dest = bkpsDir + "/" + pkg + "-" + df.format(date) + ".apk";
-			String dir = CShell.execute("/system/xbin/su -c echo /data/app/" + pkg + "-*").get(0);
-			CLog.V("  Running shell");
-			shell.write("cp " + dir + "/base.apk " + dest); CLog.V("  Waiting"); shell.waitForEnd();
+			String path = CShell.execute("/system/xbin/su -c pm path " + pkg).get(0).substring(8);
+			CLog.V("  Running shell & waiting");
+			new CShell("root").write("cp " + path + " " + dest).waitForEnd();
 			CLog.V("Done. Zipping");
 			runOnUiThread(new Runnable() {@Override	public void run() {pd.setMessage("Compressing app");}});
 			switch (BaseActivity.settings.getString("pkgr", "zip")) {
-				case "zip": shell.write(getFilesDir().getPath() + "/zip -" + BaseActivity.settings.getInt("compression", 5) +
-					" " + dest.substring(0, dest.length() - 3) + "app " + dest);
+				case "zip": new CShell("root").write(getFilesDir().getPath() + "/zip -" + BaseActivity.settings.getInt("compression", 5) +
+					" " + dest.substring(0, dest.length() - 3) + "app " + dest).waitForEnd(); break;
 			}
-			CLog.V("Waiting for zip");
-			shell.waitForEnd();
 			runOnUiThread(new Runnable() {@Override	public void run() {pd.dismiss();}});
 			return null;
 		}
