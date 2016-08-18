@@ -64,6 +64,8 @@ public class BaseActivity extends CAppCompatActivity {
 				OutputStream zipo = new FileOutputStream(getFilesDir() + "/zip");
 				byte[] zb = new byte[1024];	int zr;
 				while ((zr = zipi.read(zb)) != -1) zipo.write(zb, 0, zr);
+				new CShell("/system/bin/sh").write("chmod a+x " + getFilesDir() + "/zip");
+				CLog.V("" + getFilesDir());
 				//TODO: Add 'gzip' to assets/scripts
 				/*InputStream gipi = aM.open("scripts/gzip");
 				OutputStream gipo = new FileOutputStream(getFilesDir() + "/gzip");

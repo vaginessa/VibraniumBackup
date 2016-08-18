@@ -107,13 +107,14 @@ public class AppDetails extends CAppCompatActivity {
 			String dest = bkpsDir + "/" + pkg + "-" + df.format(date) + ".apk";
 			String path = CShell.execute("/system/xbin/su -c pm path " + pkg).get(0).substring(8);
 			CLog.V("  Running shell & waiting");
-			new CShell("root").write("cp " + path + " " + dest).waitForEnd();
+			new CShell("root").write("cp " + path + " " + dest + "; exit").waitForEnd();
 			CLog.V("Done. Zipping");
 			runOnUiThread(new Runnable() {@Override	public void run() {pd.setMessage("Compressing app");}});
 			switch (BaseActivity.settings.getString("pkgr", "zip")) {
 				case "zip": new CShell("root").write(getFilesDir().getPath() + "/zip -" + BaseActivity.settings.getInt("compression", 5) +
-					" " + dest.substring(0, dest.length() - 3) + "app " + dest).waitForEnd(); break;
+					" " + (bkpsDir + "/" + pkg + "-" + df.format(date) + ".app") + " " + dest + "; exit").waitForEnd(); break;
 			}
+			CShell.execute("su -c rm " + dest);
 			runOnUiThread(new Runnable() {@Override	public void run() {pd.dismiss();}});
 			return null;
 		}
