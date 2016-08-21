@@ -1,12 +1,10 @@
 package com.apkdevs.android.tools.vibraniumbackup.ui;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.graphics.Color;
-import android.os.Environment;
 import android.support.design.widget.TabLayout;
 import android.support.v7.widget.Toolbar;
 
@@ -72,7 +70,6 @@ public class BaseActivity extends CAppCompatActivity {
 				byte[] gb = new byte[1024];	int gr;
 				while ((gr = gipi.read(zb)) != -1) gipo.write(gb, 0, gr);*/
 			} catch(IOException e) { e.printStackTrace(); }
-			//CShell.execute("/system/bin/sh -c if [ ! -f \"" + getFilesDir() + "/zip ]; then cp ")
 		}
 
 		@Override
